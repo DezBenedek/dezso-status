@@ -560,6 +560,16 @@
                 return ((upCount / filteredLogs.length) * 100).toFixed(2);
             }
 
+            function calculateAverageResponseTime(monitor, days = 30) {
+                const logs = monitor.detailedLogs || [];
+                if (logs.length === 0) return 0;
+                const limit = Date.now() - (days * 24 * 60 * 60 * 1000);
+                const filteredLogs = logs.filter(l => l.time >= limit && l.ok);
+                if (filteredLogs.length === 0) return 0;
+                const total = filteredLogs.reduce((acc, l) => acc + (l.responseTime || 0), 0);
+                return Math.round(total / filteredLogs.length);
+            }
+
             function renderDetail() {
                 const m = rawData.metrics[activeId];
                 const config = rawData.config.urls.find(u => u.id === activeId);
@@ -571,6 +581,7 @@
                 }
 
                 const uptime30d = calculateUptime(m, 30);
+                const avgResTime = calculateAverageResponseTime(m, 30);
                 const statusLabel = m.lastStatus?.ok ? 'OPERATIONAL' : 'OFFLINE';
                 const statusColor = m.lastStatus?.ok ? 'text-status-up bg-status-up/10 border-status-up/20' : 'text-status-down bg-status-down/10 border-status-down/20';
 
@@ -642,8 +653,8 @@
                             <div class="text-4xl font-black text-white">${uptime30d}<span class="text-lg text-gray-600 ml-0.5">%</span></div>
                         </div>
                         <div class="glass-card p-6 rounded-3xl border border-gray-800/50">
-                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Válaszidő</p>
-                            <div class="text-4xl font-black text-white">${m.lastStatus?.responseTime || 0}<span class="text-lg text-gray-600 ml-1">ms</span></div>
+                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Átlagos válaszidő</p>
+                            <div class="text-4xl font-black text-white">${avgResTime}<span class="text-lg text-gray-600 ml-1">ms</span></div>
                         </div>
                         <div class="glass-card p-6 rounded-3xl border border-gray-800/50">
                             <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Utolsó frissítés</p>
