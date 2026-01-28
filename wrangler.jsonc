@@ -1,0 +1,32 @@
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "dezso-studios-status",
+    "main": "index.js",
+    "compatibility_date": "2024-01-01",
+    "observability": {
+        "enabled": true
+    },
+    "vars": {
+        "ADMIN_PASSWORD_HASH": "55c537773399a58d1f76d9e2f2ce42a51d296df9a1eed8aafcb6176377a585a6"
+    },
+    "kv_namespaces": [
+        {
+            "binding": "STATUS_KV",
+            "id": "f185a8af3f4e495083b894441cfd4c09"
+        }
+    ],
+    "triggers": {
+        "crons": [
+            "*/3 * * * *"
+        ]
+    },
+    "rules": [
+        {
+            "type": "Text",
+            "globs": [
+                "**/*.html"
+            ],
+            "fallthrough": true
+        }
+    ]
+}
