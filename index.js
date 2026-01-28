@@ -31,7 +31,6 @@ export default {
             }
 
             const monitor = data[target.id];
-            // Update metadata in case it changed in config
             monitor.name = target.name;
             monitor.url = target.url;
             monitor.categoryId = target.categoryId || 'none';
@@ -75,7 +74,6 @@ export default {
             if (monitor.incidents.length > 50) monitor.incidents.shift();
         }
 
-        // Remove data for URLs that are no longer in config
         const activeIds = config.urls.map(u => u.id);
         for (const key in data) {
             if (!activeIds.includes(key)) delete data[key];
@@ -102,7 +100,6 @@ export default {
             const body = await request.json();
             const { password, config } = body;
 
-            // Generate SHA-256 hash of the provided password
             const msgUint8 = new TextEncoder().encode(password);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
             const hashArray = Array.from(new Uint8Array(hashBuffer));

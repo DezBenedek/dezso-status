@@ -401,7 +401,6 @@
         </div>
 
         <script>
-            // Fake data for initial rendering (until refresh pulls actual data)
             let rawData = {
                 metrics: {},
                 config: {
@@ -429,7 +428,6 @@
                     if (res.ok) {
                         rawData = await res.json();
                     } else {
-                        // Fallback mock logic for visual-only environment
                         generateMockMetrics();
                     }
 
@@ -453,7 +451,6 @@
                 }
             }
 
-            // Helper to fill empty data for visualization
             function generateMockMetrics() {
                 rawData.config.urls.forEach(u => {
                     if (!rawData.metrics[u.id]) {
@@ -577,7 +574,6 @@
                 const statusLabel = m.lastStatus?.ok ? 'OPERATIONAL' : 'OFFLINE';
                 const statusColor = m.lastStatus?.ok ? 'text-status-up bg-status-up/10 border-status-up/20' : 'text-status-down bg-status-down/10 border-status-down/20';
 
-                // Measurements Bar - Newest on right, mobile limit 30, empty bars on left
                 const isMobile = window.innerWidth < 768;
                 const totalBars = isMobile ? 30 : 60;
                 const recentLogs = (m.detailedLogs || []).slice(-totalBars);
@@ -585,12 +581,10 @@
 
                 const emptyBarsCount = totalBars - recentLogs.length;
 
-                // Render empty bars first (left side)
                 for (let i = 0; i < emptyBarsCount; i++) {
                     recentBarsHtml += `<div class="bar-segment flex-1 h-full rounded-[1px] bg-gray-800/40"></div>`;
                 }
 
-                // Render log bars (right side)
                 for (let i = 0; i < recentLogs.length; i++) {
                     const log = recentLogs[i];
                     const timeStr = new Date(log.time).toLocaleTimeString('hu-HU');
@@ -598,7 +592,6 @@
                     recentBarsHtml += `<div class="bar-segment flex-1 h-full rounded-[1px] ${colorClass}" title="${timeStr} | ${log.responseTime}ms | Status: ${log.status}"></div>`;
                 }
 
-                // Daily Uptime (Last 30 days)
                 let dailyHtml = '';
                 const now = new Date();
                 for (let i = 29; i >= 0; i--) {
@@ -715,8 +708,6 @@
                 renderSidebar();
                 renderDetail();
             }
-
-            // --- Admin UI Logic ---
 
             function openLogin() {
                 document.getElementById('login-modal').classList.remove('hidden');
@@ -845,7 +836,7 @@
                     }
                 };
                 reader.readAsText(file);
-                input.value = ''; // Reset input
+                input.value = '';
             }
 
             async function saveAdminChanges() {
@@ -864,7 +855,6 @@
 
                     if (res.ok) {
                         rawData.config = JSON.parse(JSON.stringify(editConfig));
-                        // Update collapsed state based on new config
                         editConfig.categories.forEach(c => {
                             if (c.defaultOpen === false) collapsedCategories.add(c.id);
                             else collapsedCategories.delete(c.id);
@@ -887,9 +877,8 @@
                 }
             }
 
-            // Initialize
             refresh();
-            setInterval(refresh, 30000); // 30s update
+            setInterval(refresh, 30000);
         </script>
     </div>
 </body>
