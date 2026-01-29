@@ -354,8 +354,7 @@
                         </div>
                     </div>
                     <nav class="flex-1 p-4 space-y-2">
-                        <button onclick="setAdminPage('overview')" data-page="overview"
-                            class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
+                        <button onclick="setAdminPage('overview')" data-page="overview" class="admin-nav-btn">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
@@ -363,8 +362,7 @@
                             </svg>
                             <span class="font-semibold">Áttekintés</span>
                         </button>
-                        <button onclick="setAdminPage('statistics')" data-page="statistics"
-                            class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
+                        <button onclick="setAdminPage('statistics')" data-page="statistics" class="admin-nav-btn">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z">
@@ -372,8 +370,7 @@
                             </svg>
                             <span class="font-semibold">Statisztikák</span>
                         </button>
-                        <button onclick="setAdminPage('monitors')" data-page="monitors"
-                            class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
+                        <button onclick="setAdminPage('monitors')" data-page="monitors" class="admin-nav-btn">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
@@ -381,8 +378,7 @@
                             </svg>
                             <span class="font-semibold">Monitorok</span>
                         </button>
-                        <button onclick="setAdminPage('maintenance')" data-page="maintenance"
-                            class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
+                        <button onclick="setAdminPage('maintenance')" data-page="maintenance" class="admin-nav-btn">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
@@ -391,8 +387,7 @@
                             </svg>
                             <span class="font-semibold">Karbantartás</span>
                         </button>
-                        <button onclick="setAdminPage('settings')" data-page="settings"
-                            class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
+                        <button onclick="setAdminPage('settings')" data-page="settings" class="admin-nav-btn">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
@@ -416,7 +411,7 @@
                 </aside>
 
                 <main class="flex-1 overflow-y-auto">
-                    <div id="admin-page-overview" class="admin-page hidden p-8">
+                    <div id="admin-page-overview" class="admin-page p-8">
                         <header class="mb-8">
                             <h1 class="text-3xl font-black text-white mb-2">Áttekintés</h1>
                             <p class="text-gray-500">Rendszer állapot és statisztikák</p>
@@ -424,7 +419,7 @@
                         <div id="admin-overview-content"></div>
                     </div>
 
-                    <div id="admin-page-statistics" class="admin-page hidden p-8">
+                    <div id="admin-page-statistics" class="admin-page p-8">
                         <header class="mb-8">
                             <h1 class="text-3xl font-black text-white mb-2">Statisztikák</h1>
                             <p class="text-gray-500">Részletes grafikonok és elemzések</p>
@@ -473,7 +468,7 @@
                         </div>
                     </div>
 
-                    <div id="admin-page-monitors" class="admin-page hidden p-8">
+                    <div id="admin-page-monitors" class="admin-page p-8">
                         <header class="flex items-center justify-between mb-8">
                             <div>
                                 <h1 class="text-3xl font-black text-white mb-2">Monitorok</h1>
@@ -491,7 +486,7 @@
                         <div id="admin-monitors-content"></div>
                     </div>
 
-                    <div id="admin-page-maintenance" class="admin-page hidden p-8">
+                    <div id="admin-page-maintenance" class="admin-page p-8">
                         <header class="flex items-center justify-between mb-8">
                             <div>
                                 <h1 class="text-3xl font-black text-white mb-2 flex items-center gap-3">
@@ -512,7 +507,7 @@
                         <div id="admin-maintenance-content"></div>
                     </div>
 
-                    <div id="admin-page-settings" class="admin-page hidden p-8">
+                    <div id="admin-page-settings" class="admin-page p-8">
                         <header class="mb-8">
                             <h1 class="text-3xl font-black text-white mb-2">Beállítások</h1>
                             <p class="text-gray-500">Kategóriák és globális szabályok</p>
@@ -1180,10 +1175,146 @@
             function renderAdminPage(page) {
                 switch (page) {
                     case 'overview': renderAdminOverview(); break;
+                    case 'statistics': renderAdminStatistics(); break;
                     case 'monitors': renderAdminMonitors(); break;
                     case 'maintenance': renderAdminMaintenance(); break;
                     case 'settings': renderAdminSettings(); break;
                 }
+            }
+
+            let statsCharts = {};
+
+            function updateStatsMonitors() {
+                const catId = document.getElementById('stats-category').value;
+                const monSelect = document.getElementById('stats-monitor');
+                monSelect.innerHTML = '<option value="all">Összes monitor</option>';
+
+                const monitors = catId === 'all'
+                    ? editConfig.urls
+                    : editConfig.urls.filter(u => u.categoryId === catId);
+
+                monSelect.innerHTML += monitors.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+                renderAdminStatistics();
+            }
+
+            async function renderAdminStatistics() {
+                const range = parseInt(document.getElementById('stats-range').value);
+                const catId = document.getElementById('stats-category').value;
+                const monId = document.getElementById('stats-monitor').value;
+
+                const catSelect = document.getElementById('stats-category');
+                if (catSelect.options.length === 1) {
+                    catSelect.innerHTML = '<option value="all">Összes kategória</option>' +
+                        editConfig.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                }
+
+                const monSelect = document.getElementById('stats-monitor');
+                if (monSelect.options.length === 1 && catId === 'all') {
+                    monSelect.innerHTML = '<option value="all">Összes monitor</option>' +
+                        editConfig.urls.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+                }
+
+                const limit = Date.now() - (range * 24 * 60 * 60 * 1000);
+
+                let filteredMonitors = editConfig.urls;
+                if (catId !== 'all') filteredMonitors = filteredMonitors.filter(u => u.categoryId === catId);
+                if (monId !== 'all') filteredMonitors = filteredMonitors.filter(u => u.id === monId);
+
+                const interval = range === 1 ? 30 * 60 * 1000 : range <= 7 ? 4 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+                let dataPoints = {};
+
+                filteredMonitors.forEach(u => {
+                    const m = rawData.metrics[u.id];
+                    if (!m || !m.detailedLogs) return;
+                    m.detailedLogs.forEach(log => {
+                        if (log.time < limit) return;
+                        const bucket = Math.floor(log.time / interval) * interval;
+                        if (!dataPoints[bucket]) dataPoints[bucket] = { okCount: 0, totalCount: 0, responseTotal: 0 };
+
+                        // Ellenőrizzük, hogy volt-e karbantartás abban az időpontban
+                        const inMaint = (editConfig.maintenances || []).some(maint => {
+                            if (log.time < maint.start || log.time > maint.end) return false;
+                            if (maint.monitorIds?.includes(u.id)) return true;
+                            if (maint.categoryIds?.includes(u.categoryId)) return true;
+                            return false;
+                        });
+
+                        if (log.ok || inMaint) dataPoints[bucket].okCount++;
+                        dataPoints[bucket].totalCount++;
+                        dataPoints[bucket].responseTotal += log.responseTime || 0;
+                    });
+                });
+
+                const sortedBuckets = Object.keys(dataPoints).sort().map(Number);
+                const labels = sortedBuckets.map(b => {
+                    const d = new Date(b);
+                    if (range === 1) return d.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' });
+                    return d.toLocaleDateString('hu-HU', { month: 'short', day: 'numeric' });
+                });
+
+                const uptimeData = sortedBuckets.map(b => (dataPoints[b].okCount / dataPoints[b].totalCount) * 100);
+                const responseData = sortedBuckets.map(b => dataPoints[b].responseTotal / dataPoints[b].totalCount);
+
+                drawChart('uptimeChart', 'Uptime (%)', labels, uptimeData, '#10b981', 'line');
+                drawChart('responseTimeChart', 'Válaszidő (ms)', labels, responseData, '#3b82f6', 'bar');
+            }
+
+            function drawChart(id, label, labels, data, color, type) {
+                const canvas = document.getElementById(id);
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                if (statsCharts[id]) statsCharts[id].destroy();
+
+                statsCharts[id] = new Chart(ctx, {
+                    type: type,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: label,
+                            data: data,
+                            borderColor: color,
+                            backgroundColor: type === 'line' ? color + '20' : color + '80',
+                            borderWidth: 2,
+                            fill: type === 'line',
+                            tension: 0.4,
+                            pointRadius: labels.length > 50 ? 0 : 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { intersect: false, mode: 'index' },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 17, 23, 0.9)',
+                                titleColor: '#fff',
+                                bodyColor: '#9ca3af',
+                                borderColor: 'rgba(255,255,255,0.1)',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: false,
+                                callbacks: {
+                                    label: (context) => `${context.dataset.label}: ${context.parsed.y.toFixed(2)}${id.includes('uptime') ? '%' : 'ms'}`
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: type === 'bar',
+                                min: type === 'line' ? Math.max(0, Math.min(...data) - 0.5) : 0,
+                                max: type === 'line' ? 100 : undefined,
+                                grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                                ticks: { color: '#6b7280', font: { size: 10 } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#6b7280', font: { size: 10 }, maxTicksLimit: 8 }
+                            }
+                        }
+                    }
+                });
             }
 
             function renderAdmin() {
