@@ -57,9 +57,43 @@
         }
 
         .glass-card {
-            background: rgba(15, 17, 23, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 17, 23, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+        }
+
+        .admin-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #9ca3af;
+            width: 100%;
+            text-align: left;
+        }
+
+        .admin-nav-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .admin-nav-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(12, 134, 235, 0.1) 0%, rgba(12, 134, 235, 0.2) 100%);
+            border: 1px solid rgba(12, 134, 235, 0.3);
+            box-shadow: 0 4px 15px -5px rgba(12, 134, 235, 0.3);
+        }
+
+        .admin-page {
+            display: none;
+            animation: slide-up 0.4s ease-out;
+        }
+
+        .admin-page.active {
+            display: block;
         }
 
         ::-webkit-scrollbar {
@@ -289,7 +323,7 @@
                 </div>
                 <div class="space-y-5">
                     <div>
-                        <input type="password" id="admin-pass"
+                        <input type="password" id="admin-pass" onkeyup="if(event.key === 'Enter') tryLogin()"
                             class="w-full bg-gray-900/50 border border-gray-800 text-white p-3 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all placeholder:text-gray-600"
                             placeholder="Jelszó">
                     </div>
@@ -431,11 +465,18 @@
         </div>
 
         <div id="maintenance-modal"
-            class="fixed inset-0 bg-black/60 backdrop-blur-md hidden items-center justify-center z-[120] p-4">
-            <div class="bg-dark-card border border-gray-800 rounded-2xl p-8 w-full max-w-lg shadow-2xl">
-                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                    <div class="w-4 h-4 rounded-full bg-status-maintenance"></div>
-                    Új karbantartás
+            class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-[120] p-4">
+            <div
+                class="bg-dark-card border border-gray-800 rounded-3xl p-8 w-full max-w-lg shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)]">
+                <h2 class="text-2xl font-black text-white mb-8 flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-400 border border-violet-500/20">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    Karbantartás kezelése
                 </h2>
                 <div class="space-y-5">
                     <div class="grid grid-cols-2 gap-4">
@@ -456,7 +497,14 @@
                         <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Érintett
                             szolgáltatások</label>
                         <div id="maint-monitors"
-                            class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 bg-gray-900/30 rounded-xl border border-gray-800">
+                            class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 bg-gray-900/30 rounded-xl border border-gray-800">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Érintett
+                            kategóriák</label>
+                        <div id="maint-categories"
+                            class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 bg-gray-900/30 rounded-xl border border-gray-800">
                         </div>
                     </div>
                     <div>
@@ -473,6 +521,80 @@
                         <button onclick="closeModal('maintenance-modal')"
                             class="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl font-bold transition-all">Mégse</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="edit-monitor-modal"
+            class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-[120] p-4">
+            <div
+                class="bg-dark-card border border-gray-800 rounded-3xl p-8 w-full max-w-lg shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)]">
+                <h2 class="text-2xl font-black text-white mb-8 flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center text-brand-400 border border-brand-500/20">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                            </path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </div>
+                    Monitor beállításai
+                </h2>
+                <div class="space-y-5">
+                    <div>
+                        <label
+                            class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Megnevezés</label>
+                        <input type="text" id="edit-monitor-name"
+                            class="w-full bg-gray-900/50 border border-gray-800 text-white p-3 rounded-xl outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Kategória</label>
+                        <select id="edit-monitor-category"
+                            class="w-full bg-gray-900 border border-gray-800 text-white p-3 rounded-xl outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%3E%3C/path%3E%3C/svg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat transition-all">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Végpont
+                            URL</label>
+                        <input type="text" id="edit-monitor-url"
+                            class="w-full bg-gray-900/50 border border-gray-800 text-brand-400 font-mono p-3 rounded-xl outline-none focus:border-brand-500">
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="saveMonitorEdit()"
+                            class="flex-1 bg-brand-600 hover:bg-brand-500 text-white py-3 rounded-xl font-bold transition-all">Mentés</button>
+                        <button onclick="closeModal('edit-monitor-modal')"
+                            class="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl font-bold transition-all">Mégse</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirm-modal"
+            class="fixed inset-0 bg-black/60 backdrop-blur-md hidden items-center justify-center z-[130] p-4">
+            <div class="bg-dark-card border border-gray-800 rounded-2xl p-8 w-full max-w-md shadow-2xl">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Törlés megerősítése</h2>
+                        <p class="text-gray-500 text-sm">Ez a művelet nem vonható vissza</p>
+                    </div>
+                </div>
+                <p class="text-gray-300 mb-6">Biztosan törölni szeretnéd: <span id="confirm-delete-name"
+                        class="font-bold text-white"></span>?</p>
+                <div class="flex gap-3">
+                    <button onclick="executeDeleteMaintenance()"
+                        class="flex-1 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl font-bold transition-all">Törlés</button>
+                    <button onclick="closeModal('confirm-modal')"
+                        class="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl font-bold transition-all">Mégse</button>
                 </div>
             </div>
         </div>
@@ -600,25 +722,33 @@
                     if (monitors.length === 0 && cat.id === 'none') return;
 
                     const isCollapsed = collapsedCategories.has(cat.id);
+                    const isCategoryInMaintenance = isInMaintenanceNow(null, cat.id);
 
                     const catDiv = document.createElement('div');
                     catDiv.className = "group";
                     catDiv.innerHTML = `
                     <div onclick="toggleCategory('${cat.id}')" class="category-header flex items-center justify-between px-2 mb-3 cursor-pointer group/header">
-                        <span class="text-[10px] font-black text-gray-500 uppercase tracking-[0.15em] group-hover/header:text-gray-300 transition-colors">${cat.name}</span>
+                        <div class="flex items-center gap-2">
+                            ${isCategoryInMaintenance ? '<div class="w-2 h-2 rounded-full bg-status-maintenance animate-pulse"></div>' : ''}
+                            <span class="text-[10px] font-black ${isCategoryInMaintenance ? 'text-status-maintenance' : 'text-gray-500'} uppercase tracking-[0.15em] group-hover/header:text-gray-300 transition-colors">${cat.name}</span>
+                        </div>
                         <svg class="w-3 h-3 text-gray-600 transition-transform ${isCollapsed ? '-rotate-90' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                     <div class="space-y-1 ${isCollapsed ? 'hidden' : ''}">
                         ${monitors.map(m => {
                         const met = rawData.metrics[m.id];
                         const isUp = met?.lastStatus?.ok;
+                        const inMaintenance = isInMaintenanceNow(m.id, null);
+                        const statusColor = inMaintenance ? 'bg-status-maintenance' : (isUp ? 'bg-status-up' : 'bg-status-down');
+                        const statusGlow = inMaintenance ? '' : (isUp ? 'status-glow-up' : 'status-glow-down');
                         return `
                                 <div onclick="selectMonitor('${m.id}')" class="group/item relative px-3 py-2.5 rounded-xl cursor-pointer flex items-center gap-3 transition-all ${activeId === m.id ? 'bg-brand-500/10 border border-brand-500/20' : 'hover:bg-gray-800/40 border border-transparent'}">
                                     <div class="relative flex items-center justify-center">
-                                        <div class="w-2 h-2 rounded-full ${isUp ? 'bg-status-up status-glow-up' : 'bg-status-down status-glow-down'}"></div>
-                                        ${isUp ? '<div class="absolute inset-0 bg-status-up rounded-full animate-ping opacity-20 scale-150"></div>' : ''}
+                                        <div class="w-2 h-2 rounded-full ${statusColor} ${statusGlow} ${inMaintenance ? 'animate-pulse' : ''}"></div>
+                                        ${isUp && !inMaintenance ? '<div class="absolute inset-0 bg-status-up rounded-full animate-ping opacity-20 scale-150"></div>' : ''}
                                     </div>
                                     <span class="text-sm font-bold ${activeId === m.id ? 'text-white' : 'text-gray-400 group-hover/item:text-gray-200'}">${m.name}</span>
+                                    ${inMaintenance ? '<span class="text-[9px] font-bold text-status-maintenance uppercase">Karbantartás</span>' : ''}
                                     ${activeId === m.id ? '<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 bg-brand-500 rounded-full"></div>' : ''}
                                 </div>
                             `;
@@ -631,11 +761,32 @@
 
             function isInMaintenance(monitorId, timestamp) {
                 const maintenances = rawData.config.maintenances || [];
-                return maintenances.some(m =>
-                    m.monitorId === monitorId &&
-                    timestamp >= m.start &&
-                    timestamp <= m.end
-                );
+                return maintenances.some(m => {
+                    if (timestamp < m.start || timestamp > m.end) return false;
+                    const ids = m.monitorIds || (m.monitorId ? [m.monitorId] : []);
+                    const catIds = m.categoryIds || [];
+                    if (ids.includes(monitorId)) return true;
+                    const monitor = rawData.config.urls.find(u => u.id === monitorId);
+                    if (monitor && catIds.includes(monitor.categoryId)) return true;
+                    return false;
+                });
+            }
+
+            function isInMaintenanceNow(monitorId, categoryId) {
+                const now = Date.now();
+                const maintenances = rawData.config.maintenances || [];
+                return maintenances.some(m => {
+                    if (now < m.start || now > m.end) return false;
+                    const ids = m.monitorIds || (m.monitorId ? [m.monitorId] : []);
+                    const catIds = m.categoryIds || [];
+                    if (monitorId && ids.includes(monitorId)) return true;
+                    if (categoryId && catIds.includes(categoryId)) return true;
+                    if (monitorId) {
+                        const monitor = rawData.config.urls.find(u => u.id === monitorId);
+                        if (monitor && catIds.includes(monitor.categoryId)) return true;
+                    }
+                    return false;
+                });
             }
 
             function calculateUptime(monitor, days = 30) {
@@ -667,11 +818,13 @@
                     view.innerHTML = '<div class="flex flex-col items-center justify-center h-[50vh] text-gray-500"><svg class="w-12 h-12 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>Válassz egy monitort a listából...</div>';
                     return;
                 }
-
-                const uptime30d = calculateUptime(m, 30);
-                const avgResTime = calculateAverageResponseTime(m, 30);
-                const statusLabel = m.lastStatus?.ok ? 'OPERATIONAL' : 'OFFLINE';
-                const statusColor = m.lastStatus?.ok ? 'text-status-up bg-status-up/10 border-status-up/20' : 'text-status-down bg-status-down/10 border-status-down/20';
+                const monitorWithId = { ...m, id: activeId };
+                const uptime30d = calculateUptime(monitorWithId, 30);
+                const avgResTime = calculateAverageResponseTime(monitorWithId, 30);
+                const inMaintenanceNow = isInMaintenanceNow(activeId, config.categoryId);
+                const statusLabel = inMaintenanceNow ? 'KARBANTARTÁS' : (m.lastStatus?.ok ? 'OPERATIONAL' : 'OFFLINE');
+                const statusColor = inMaintenanceNow ? 'text-status-maintenance bg-status-maintenance/10 border-status-maintenance/20' : (m.lastStatus?.ok ? 'text-status-up bg-status-up/10 border-status-up/20' : 'text-status-down bg-status-down/10 border-status-down/20');
+                const statusDotColor = inMaintenanceNow ? 'bg-status-maintenance shadow-[0_0_10px_rgba(139,92,246,0.5)]' : (m.lastStatus?.ok ? 'bg-status-up shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-status-down shadow-[0_0_10px_rgba(239,68,68,0.5)]');
 
                 const isMobile = window.innerWidth < 768;
                 const totalBars = isMobile ? 30 : 60;
@@ -687,7 +840,7 @@
                 for (let i = 0; i < recentLogs.length; i++) {
                     const log = recentLogs[i];
                     const timeStr = new Date(log.time).toLocaleTimeString('hu-HU');
-                    const inMaint = isInMaintenance(m.id, log.time);
+                    const inMaint = isInMaintenance(activeId, log.time);
                     const colorClass = inMaint ? 'bg-status-maintenance' : (log.ok ? 'bg-status-up' : 'bg-status-down');
                     const statusText = inMaint ? 'Karbantartás' : `Status: ${log.status}`;
                     recentBarsHtml += `<div class="bar-segment flex-1 h-full rounded-md ${colorClass}" title="${timeStr} | ${log.responseTime}ms | ${statusText}"></div>`;
@@ -713,19 +866,32 @@
                     let color = 'bg-gray-800/50';
                     let title = `${d.toLocaleDateString('hu-HU')}: Nincs adat`;
 
-                    if (dayLogs.length > 0) {
-                        const maintLogs = dayLogs.filter(l => isInMaintenance(m.id, l.time));
-                        const nonMaintLogs = dayLogs.filter(l => !isInMaintenance(m.id, l.time));
+                    const dayMaintenances = (rawData.config.maintenances || []).filter(maint => {
+                        const ids = maint.monitorIds || (maint.monitorId ? [maint.monitorId] : []);
+                        const catIds = maint.categoryIds || [];
+                        const monitor = rawData.config.urls.find(u => u.id === activeId);
+                        const affectsMonitor = ids.includes(activeId) || (monitor && catIds.includes(monitor.categoryId));
+                        if (!affectsMonitor) return false;
+                        return maint.start <= dayEnd.getTime() && maint.end >= d.getTime();
+                    });
+                    const maintCount = dayMaintenances.length;
 
-                        if (maintLogs.length === dayLogs.length) {
-                            color = 'bg-status-maintenance';
-                            title = `${d.toLocaleDateString('hu-HU')} | Karbantartás`;
-                        } else if (nonMaintLogs.length > 0) {
+                    if (dayLogs.length > 0) {
+                        const nonMaintLogs = dayLogs.filter(l => !isInMaintenance(activeId, l.time));
+
+                        if (nonMaintLogs.length > 0) {
                             const fails = nonMaintLogs.filter(l => !l.ok).length;
                             const dayUp = ((nonMaintLogs.length - fails) / nonMaintLogs.length) * 100;
                             color = getDayColor(dayUp);
-                            title = `${d.toLocaleDateString('hu-HU')} | Uptime: ${dayUp.toFixed(2)}% (${fails} hiba${maintLogs.length > 0 ? ', +karbantartás' : ''})`;
+                            const maintInfo = maintCount > 0 ? ` | ${maintCount} karbantartás` : '';
+                            title = `${d.toLocaleDateString('hu-HU')} | Uptime: ${dayUp.toFixed(2)}% (${fails} hiba)${maintInfo}`;
+                        } else if (maintCount > 0) {
+                            color = 'bg-gray-700';
+                            title = `${d.toLocaleDateString('hu-HU')} | ${maintCount} karbantartás (nincs uptime adat)`;
                         }
+                    } else if (maintCount > 0) {
+                        color = 'bg-gray-700';
+                        title = `${d.toLocaleDateString('hu-HU')} | ${maintCount} karbantartás (nincs adat)`;
                     }
                     dailyHtml += `<div class="bar-segment flex-1 h-full rounded-lg ${color}" title="${title}"></div>`;
                 }
@@ -750,8 +916,8 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 px-5 py-3 rounded-2xl border ${statusColor} font-bold text-sm tracking-widest animate-pulse-subtle">
-                            <div class="w-2.5 h-2.5 rounded-full ${m.lastStatus?.ok ? 'bg-status-up shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-status-down shadow-[0_0_10px_rgba(239,68,68,0.5)]'}"></div>
+                        <div class="flex items-center gap-3 px-5 py-3 rounded-2xl border ${statusColor} font-bold text-sm tracking-widest ${inMaintenanceNow ? 'animate-pulse' : 'animate-pulse-subtle'}">
+                            <div class="w-2.5 h-2.5 rounded-full ${statusDotColor}"></div>
                             ${statusLabel}
                         </div>
                     </header>
@@ -784,56 +950,132 @@
                         </div>
 
                         <div class="glass-card p-8 rounded-[32px] border border-gray-800/50">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                            <div class="mb-6">
                                 <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Napi bontás (30 nap)</h3>
-                                <div class="flex flex-wrap items-center gap-2 text-[10px] font-bold">
-                                    <div class="w-2.5 h-2.5 rounded-full bg-status-up" title="99.99%+"></div>
-                                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400" title="95%+"></div>
-                                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500" title="90%+"></div>
-                                    <div class="w-2.5 h-2.5 rounded-full bg-red-500" title="85%+"></div>
-                                    <div class="w-2.5 h-2.5 rounded-full bg-red-800" title="<85%"></div>
-                                    <div class="w-2.5 h-2.5 rounded-full bg-status-maintenance" title="Karbantartás"></div>
-                                </div>
                             </div>
                             <div class="flex gap-[3px] h-8">${dailyHtml}</div>
                         </div>
 
-                        <div class="space-y-4">
-                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest ml-2 mb-4">Hibanapló & Incidensek</h3>
-                            ${m.incidents && m.incidents.length > 0 ?
-                        m.incidents.slice(-5).reverse().map(inc => `
-                                    <div class="bg-dark-card border border-gray-800/80 p-5 rounded-2xl flex justify-between items-center group hover:border-gray-700 transition-all">
-                                        <div class="flex items-center gap-5">
-                                            <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20">
-                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                                            </div>
-                                            <div>
-                                                <div class="text-sm font-bold text-white uppercase tracking-tight">Kiesés észlelve (Error ${inc.code})</div>
-                                                <div class="text-[11px] text-gray-500 font-medium">${new Date(inc.start).toLocaleString('hu-HU')}</div>
-                                            </div>
-                                        </div>
-                                        <div class="px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest ${inc.end ? 'text-status-up bg-status-up/5' : 'text-status-down bg-status-down/5'}">
-                                            ${inc.end ? `MEGOLDVA: ${Math.round((inc.end - inc.start) / 60000)}p` : 'AKTÍV HIBA'}
-                                        </div>
-                                    </div>
-                                `).join('') : `
-                                    <div class="flex flex-col items-center justify-center py-10 md:py-20 px-4 border-2 border-dashed border-gray-800/40 rounded-2xl md:rounded-[40px]">
-                                        <div class="w-12 h-12 md:w-16 md:h-16 bg-status-up/5 rounded-full flex items-center justify-center text-status-up mb-3 md:mb-4">
-                                            <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                        </div>
-                                        <p class="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest text-center">Nincs incidens (30 nap)</p>
-                                    </div>
-                                `
-                    }
+                        <div class="space-y-4" id="log-section">
+                            <div class="flex justify-between items-center ml-2 mb-4">
+                                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Hibanapló & Események</h3>
+                                <span class="text-[10px] text-gray-600 font-bold" id="log-counter"></span>
+                            </div>
+                            <div id="log-container"></div>
+                            <button id="load-more-logs" onclick="loadMoreLogs()" class="hidden w-full py-3 bg-gray-800/50 hover:bg-gray-700/50 text-gray-400 hover:text-white font-bold text-sm rounded-xl transition-all">
+                                Több betöltése...
+                            </button>
                         </div>
-                    </div>
-                </div>
-            `;
+                    </div>`;
+
+                renderLogSection(activeId, m, 0);
             }
 
             function render() {
                 renderSidebar();
                 renderDetail();
+            }
+
+            let logOffset = 0;
+            let currentLogMonitorId = null;
+            let currentLogMetrics = null;
+
+            function renderLogSection(monitorId, metrics, offset) {
+                currentLogMonitorId = monitorId;
+                currentLogMetrics = metrics;
+                logOffset = offset;
+
+                const incidents = (metrics.incidents || []).map(inc => ({ ...inc, type: 'incident' }));
+                const maintenances = (rawData.config.maintenances || [])
+                    .filter(m => {
+                        const ids = m.monitorIds || (m.monitorId ? [m.monitorId] : []);
+                        const catIds = m.categoryIds || [];
+                        const monitor = rawData.config.urls.find(u => u.id === monitorId);
+                        return ids.includes(monitorId) || (monitor && catIds.includes(monitor.categoryId));
+                    })
+                    .map(m => ({ ...m, type: 'maintenance', time: m.start }));
+
+                const allEvents = [...incidents.map(i => ({ ...i, time: i.start })), ...maintenances]
+                    .sort((a, b) => b.time - a.time);
+
+                const totalEvents = allEvents.length;
+                const displayEvents = allEvents.slice(offset, offset + 50);
+                const hasMore = offset + 50 < totalEvents;
+
+                const container = document.getElementById('log-container');
+                const counter = document.getElementById('log-counter');
+                const loadMoreBtn = document.getElementById('load-more-logs');
+
+                if (!container) return;
+
+                counter.textContent = `${Math.min(offset + 50, totalEvents)} / ${totalEvents}`;
+
+                let html = '';
+                if (displayEvents.length === 0 && offset === 0) {
+                    html = `
+                        <div class="flex flex-col items-center justify-center py-10 md:py-20 px-4 border-2 border-dashed border-gray-800/40 rounded-2xl md:rounded-[40px]">
+                            <div class="w-12 h-12 md:w-16 md:h-16 bg-status-up/5 rounded-full flex items-center justify-center text-status-up mb-3 md:mb-4">
+                                <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <p class="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest text-center">Nincs esemény</p>
+                        </div>`;
+                } else {
+                    displayEvents.forEach(event => {
+                        if (event.type === 'incident') {
+                            html += `
+                                <div class="bg-dark-card border border-gray-800/80 p-5 rounded-2xl flex justify-between items-center group hover:border-gray-700 transition-all mb-3">
+                                    <div class="flex items-center gap-5">
+                                        <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-bold text-white uppercase tracking-tight">Kiesés észlelve (Error ${event.code})</div>
+                                            <div class="text-[11px] text-gray-500 font-medium">${new Date(event.start).toLocaleString('hu-HU')}</div>
+                                        </div>
+                                    </div>
+                                    <div class="px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest ${event.end ? 'text-status-up bg-status-up/5' : 'text-status-down bg-status-down/5'}">
+                                        ${event.end ? 'MEGOLDVA: ' + Math.round((event.end - event.start) / 60000) + 'p' : 'AKTÍV HIBA'}
+                                    </div>
+                                </div>`;
+                        } else {
+                            const isActive = Date.now() >= event.start && Date.now() <= event.end;
+                            const isPast = Date.now() > event.end;
+                            html += `
+                                <div class="bg-dark-card border border-violet-500/30 p-5 rounded-2xl flex justify-between items-center group hover:border-violet-500/50 transition-all mb-3">
+                                    <div class="flex items-center gap-5">
+                                        <div class="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-400 border border-violet-500/20">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-bold text-white uppercase tracking-tight">${event.note || 'Karbantartás'}</div>
+                                            <div class="text-[11px] text-gray-500 font-medium">${new Date(event.start).toLocaleString('hu-HU')} - ${new Date(event.end).toLocaleString('hu-HU')}</div>
+                                        </div>
+                                    </div>
+                                    <div class="px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest ${isActive ? 'text-violet-400 bg-violet-500/10' : isPast ? 'text-gray-500 bg-gray-800' : 'text-amber-400 bg-amber-500/10'}">
+                                        ${isActive ? 'AKTÍV' : isPast ? 'BEFEJEZETT' : 'ÜTEMEZETT'}
+                                    </div>
+                                </div>`;
+                        }
+                    });
+                }
+
+                if (offset === 0) {
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML += html;
+                }
+
+                if (hasMore) {
+                    loadMoreBtn.classList.remove('hidden');
+                } else {
+                    loadMoreBtn.classList.add('hidden');
+                }
+            }
+
+            function loadMoreLogs() {
+                if (currentLogMonitorId && currentLogMetrics) {
+                    renderLogSection(currentLogMonitorId, currentLogMetrics, logOffset + 50);
+                }
             }
 
             function openLogin() {
@@ -856,7 +1098,8 @@
 
             function openAdmin() {
                 editConfig = JSON.parse(JSON.stringify(rawData.config));
-                renderAdmin();
+                if (!editConfig.maintenances) editConfig.maintenances = [];
+                setAdminPage('overview');
                 document.getElementById('admin-panel').classList.remove('hidden');
             }
 
@@ -864,88 +1107,279 @@
                 document.getElementById('admin-panel').classList.add('hidden');
             }
 
+            let currentAdminPage = 'overview';
+
+            function setAdminPage(page) {
+                currentAdminPage = page;
+                document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(`admin-page-${page}`).classList.add('active');
+                document.querySelector(`[data-page="${page}"]`).classList.add('active');
+                renderAdminPage(page);
+            }
+
+            function renderAdminPage(page) {
+                switch (page) {
+                    case 'overview': renderAdminOverview(); break;
+                    case 'monitors': renderAdminMonitors(); break;
+                    case 'maintenance': renderAdminMaintenance(); break;
+                    case 'settings': renderAdminSettings(); break;
+                }
+            }
+
             function renderAdmin() {
-                const sitesList = document.getElementById('admin-sites');
-                sitesList.innerHTML = editConfig.urls.map((u, idx) => `
-                <div class="glass-card border border-gray-800 rounded-2xl p-6 group">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-gray-600 uppercase tracking-widest ml-1">Megnevezés</label>
-                            <input type="text" value="${u.name}" onchange="updateSite(${idx}, 'name', this.value)" class="w-full bg-gray-900 border border-gray-800 text-white p-3 rounded-xl focus:border-brand-500 outline-none">
+                renderAdminPage(currentAdminPage);
+            }
+
+            function renderAdminOverview() {
+                const container = document.getElementById('admin-overview-content');
+                const totalMonitors = editConfig.urls.length;
+                const upMonitors = editConfig.urls.filter(u => rawData.metrics[u.id]?.lastStatus?.ok).length;
+                const downMonitors = totalMonitors - upMonitors;
+                const totalMaintenances = (editConfig.maintenances || []).length;
+                const activeMaintenances = (editConfig.maintenances || []).filter(m => Date.now() >= m.start && Date.now() <= m.end).length;
+
+                let statsHtml = `
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <div class="glass-card p-5 rounded-2xl border border-gray-800">
+                            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Összes monitor</p>
+                            <div class="text-3xl font-black text-white">${totalMonitors}</div>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-black text-gray-600 uppercase tracking-widest ml-1">Kategória</label>
-                            <select onchange="updateSite(${idx}, 'categoryId', this.value)" class="w-full bg-gray-900 border border-gray-800 text-white p-3 rounded-xl focus:border-brand-500 outline-none">
-                                <option value="none">Nincs kategória</option>
-                                ${editConfig.categories.map(c => `<option value="${c.id}" ${u.categoryId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
-                            </select>
+                        <div class="glass-card p-5 rounded-2xl border border-status-up/30 bg-status-up/5">
+                            <p class="text-[10px] font-black text-status-up uppercase tracking-widest mb-1">Online</p>
+                            <div class="text-3xl font-black text-status-up">${upMonitors}</div>
                         </div>
-                    </div>
-                    <div class="flex gap-2">
-                        <div class="flex-1 space-y-1">
-                            <label class="text-[10px] font-black text-gray-600 uppercase tracking-widest ml-1">Végpont URL</label>
-                            <input type="text" class="w-full bg-gray-900 border border-gray-800 text-brand-400 font-mono text-sm p-3 rounded-xl focus:border-brand-500 outline-none" value="${u.url}" onchange="updateSite(${idx}, 'url', this.value)">
+                        <div class="glass-card p-5 rounded-2xl border ${downMonitors > 0 ? 'border-status-down/30 bg-status-down/5' : 'border-gray-800'}">
+                            <p class="text-[10px] font-black ${downMonitors > 0 ? 'text-status-down' : 'text-gray-500'} uppercase tracking-widest mb-1">Offline</p>
+                            <div class="text-3xl font-black ${downMonitors > 0 ? 'text-status-down' : 'text-gray-600'}">${downMonitors}</div>
                         </div>
-                        <div class="flex items-end gap-2">
-                            <div class="flex flex-col gap-1">
-                                <button onclick="moveSite(${idx}, -1)" class="w-8 h-5 flex items-center justify-center bg-gray-800 border border-gray-700 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 transition-all ${idx === 0 ? 'opacity-30 cursor-not-allowed' : ''}" ${idx === 0 ? 'disabled' : ''}>
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"></path></svg>
+                        <div class="glass-card p-5 rounded-2xl border border-violet-500/30 bg-violet-500/5">
+                            <p class="text-[10px] font-black text-violet-400 uppercase tracking-widest mb-1">Karbantartás</p>
+                            <div class="text-3xl font-black text-violet-400">${activeMaintenances}/${totalMaintenances}</div>
+                        </div>
+                    </div>`;
+
+                statsHtml += '<h3 class="text-lg font-bold text-white mb-4">Szolgáltatás statisztikák</h3>';
+                statsHtml += '<div class="space-y-3">';
+
+                editConfig.urls.forEach(u => {
+                    const m = rawData.metrics[u.id];
+                    if (!m) return;
+
+                    const uptime = calculateUptime(m, 30);
+                    const avgTime = calculateAverageResponseTime(m, 30);
+                    const isUp = m.lastStatus?.ok;
+                    const incidentCount = (m.incidents || []).length;
+
+                    statsHtml += `
+                    <div class="glass-card p-5 rounded-2xl border border-gray-800/50 hover:border-gray-700 bg-gray-900/20 flex flex-wrap md:flex-nowrap items-center justify-between gap-4 transition-all">
+                            <div class="flex items-center gap-4 min-w-[200px]">
+                                <div class="w-3 h-3 rounded-full ${isUp ? 'bg-status-up shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-status-down shadow-[0_0_10px_rgba(239,68,68,0.4)]'}"></div>
+                                <div>
+                                    <div class="font-bold text-white leading-tight">${u.name}</div>
+                                    <div class="text-[10px] text-gray-500 font-mono truncate max-w-[150px] opacity-60">${u.url}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-8">
+                                <div class="text-center px-4 border-r border-gray-800 last:border-0">
+                                    <div class="text-xs text-gray-600 uppercase font-black mb-1 opacity-50">Uptime</div>
+                                    <div class="font-black ${parseFloat(uptime) >= 99 ? 'text-status-up' : parseFloat(uptime) >= 95 ? 'text-amber-400' : 'text-status-down'}">${uptime}%</div>
+                                </div>
+                                <div class="text-center px-4 border-r border-gray-800 last:border-0">
+                                    <div class="text-xs text-gray-600 uppercase font-black mb-1 opacity-50">Avg</div>
+                                    <div class="font-black text-brand-400">${avgTime}<span class="text-[10px] ml-0.5">ms</span></div>
+                                </div>
+                                <div class="text-center px-4">
+                                    <div class="text-xs text-gray-600 uppercase font-black mb-1 opacity-50">Incidens</div>
+                                    <div class="font-black ${incidentCount > 0 ? 'text-status-down animate-pulse' : 'text-gray-500'}">${incidentCount}</div>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+
+                statsHtml += '</div>';
+                container.innerHTML = statsHtml;
+            }
+
+            function renderAdminMonitors() {
+                const container = document.getElementById('admin-monitors-content');
+
+                let html = '<div class="space-y-2">';
+                editConfig.urls.forEach((u, idx) => {
+                    const m = rawData.metrics[u.id];
+                    const isUp = m?.lastStatus?.ok;
+                    const uptime = m ? calculateUptime(m, 30) : '100.0';
+                    const cat = editConfig.categories.find(c => c.id === u.categoryId);
+
+                    html += `
+                    <div class="glass-card border border-gray-800 rounded-xl p-4 flex items-center justify-between gap-4 hover:border-gray-700 transition-all">
+                            <div class="flex items-center gap-4 flex-1 min-w-0">
+                                <div class="w-3 h-3 rounded-full flex-shrink-0 ${isUp ? 'bg-status-up' : m ? 'bg-status-down' : 'bg-gray-600'}"></div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="font-bold text-white truncate">${u.name}</div>
+                                    <div class="text-xs text-gray-500 font-mono truncate">${u.url}</div>
+                                </div>
+                                <div class="hidden md:flex items-center gap-4">
+                                    <span class="text-xs text-gray-500 px-2 py-1 bg-gray-800 rounded-lg">${cat?.name || 'Nincs kategória'}</span>
+                                    <span class="text-xs font-bold ${parseFloat(uptime) >= 99 ? 'text-status-up' : 'text-amber-400'}">${uptime}%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button onclick="moveSite(${idx}, -1)" class="w-7 h-7 flex items-center justify-center bg-gray-800 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-all ${idx === 0 ? 'opacity-30' : ''}" ${idx === 0 ? 'disabled' : ''}>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
                                 </button>
-                                <button onclick="moveSite(${idx}, 1)" class="w-8 h-5 flex items-center justify-center bg-gray-800 border border-gray-700 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 transition-all ${idx === editConfig.urls.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}" ${idx === editConfig.urls.length - 1 ? 'disabled' : ''}>
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                                <button onclick="moveSite(${idx}, 1)" class="w-7 h-7 flex items-center justify-center bg-gray-800 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-all ${idx === editConfig.urls.length - 1 ? 'opacity-30' : ''}" ${idx === editConfig.urls.length - 1 ? 'disabled' : ''}>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                <button onclick="openEditMonitorModal(${idx})" class="w-7 h-7 flex items-center justify-center bg-brand-500/10 text-brand-400 hover:bg-brand-500 rounded-lg hover:text-white transition-all" title="Szerkesztés">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                </button>
+                                <button onclick="removeSite(${idx})" class="w-7 h-7 flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500 rounded-lg hover:text-white transition-all" title="Törlés">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
                             </div>
-                            <button onclick="removeSite(${idx})" class="h-[46px] w-[46px] flex items-center justify-center bg-red-500/10 text-red-500 hover:bg-red-500 rounded-xl hover:text-white transition-all">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+                        </div>`;
+                });
+                html += '</div>';
 
-                const catList = document.getElementById('admin-categories');
-                catList.innerHTML = editConfig.categories.map((c, idx) => `
-                <div class="bg-gray-900/50 border border-gray-800 p-4 rounded-xl flex items-center gap-3">
-                    <input type="text" class="flex-1 bg-transparent border-none text-white font-bold p-0 outline-none" value="${c.name}" onchange="updateCat(${idx}, 'name', this.value)">
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="cat-open-${idx}" ${c.defaultOpen ? 'checked' : ''} onchange="updateCat(${idx}, 'defaultOpen', this.checked)" class="w-4 h-4 accent-brand-500">
-                        <label for="cat-open-${idx}" class="text-[10px] text-gray-500 font-bold uppercase">Open</label>
-                    </div>
-                    <button onclick="removeCat(${idx})" class="text-gray-600 hover:text-red-500 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-                </div>
-            `).join('');
+                container.innerHTML = html;
+            }
 
-                const maintList = document.getElementById('admin-maintenances');
+            function renderAdminMaintenance() {
+                const container = document.getElementById('admin-maintenance-content');
                 const maintenances = editConfig.maintenances || [];
-                maintList.innerHTML = maintenances.length === 0 ?
-                    '<p class="text-gray-600 text-sm px-2">Nincs karbantartás</p>' :
-                    maintenances.map((m, idx) => {
-                        const monitor = editConfig.urls.find(u => u.id === m.monitorId);
-                        const startDate = new Date(m.start).toLocaleString('hu-HU');
-                        const endDate = new Date(m.end).toLocaleString('hu-HU');
-                        return `
-                        <div class="bg-violet-500/10 border border-violet-500/30 p-4 rounded-xl">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-bold text-white">${monitor?.name || 'Ismeretlen monitor'}</span>
-                                <button onclick="removeMaintenance(${idx})" class="text-gray-600 hover:text-red-500 p-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </button>
+
+                if (maintenances.length === 0) {
+                    container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-16 border-2 border-dashed border-gray-800/40 rounded-2xl">
+                            <div class="w-16 h-16 bg-violet-500/10 rounded-full flex items-center justify-center text-violet-400 mb-4">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                             </div>
-                            <div class="text-[11px] text-gray-400 space-y-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-gray-600">Kezdet:</span>
-                                    <span class="font-mono">${startDate}</span>
+                            <p class="text-gray-500 font-semibold mb-2">Nincs tervezett karbantartás</p>
+                            <p class="text-gray-600 text-sm">Kattints az "Új karbantartás" gombra a létrehozáshoz</p>
+                        </div>`;
+                    return;
+                }
+
+                let html = '<div class="space-y-4">';
+                maintenances.forEach((m, idx) => {
+                    const monitorIds = m.monitorIds || (m.monitorId ? [m.monitorId] : []);
+                    const monitors = monitorIds.map(id => editConfig.urls.find(u => u.id === id)).filter(Boolean);
+                    const categoryIds = m.categoryIds || [];
+                    const categories = categoryIds.map(id => editConfig.categories.find(c => c.id === id)).filter(Boolean);
+                    const startDate = new Date(m.start).toLocaleString('hu-HU');
+                    const endDate = new Date(m.end).toLocaleString('hu-HU');
+                    const isActive = Date.now() >= m.start && Date.now() <= m.end;
+                    const isPast = Date.now() > m.end;
+
+                    html += `
+                    <div class="glass-card border ${isActive ? 'border-violet-500/50' : isPast ? 'border-gray-800/50 opacity-60' : 'border-gray-800'} rounded-2xl p-6">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-4 h-4 rounded-full ${isActive ? 'bg-violet-500 animate-pulse' : isPast ? 'bg-gray-600' : 'bg-violet-500/50'}"></div>
+                                    <div>
+                                        <div class="font-bold text-white">${m.note || 'Karbantartás #' + (idx + 1)}</div>
+                                        <div class="text-[10px] ${isActive ? 'text-violet-400' : isPast ? 'text-gray-600' : 'text-gray-500'} font-bold uppercase">${isActive ? 'Aktív' : isPast ? 'Befejezett' : 'Ütemezett'}</div>
+                                    </div>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-gray-600">Vége:</span>
-                                    <span class="font-mono">${endDate}</span>
+                                    <button onclick="openEditMaintenanceModal(${idx})" class="w-8 h-8 flex items-center justify-center bg-violet-500/10 text-violet-400 hover:bg-violet-500 hover:text-white rounded-lg transition-all" title="Szerkesztés">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </button>
+                                    <button onclick="confirmDeleteMaintenance(${idx})" class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all" title="Törlés">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <div class="text-[10px] text-gray-600 uppercase font-bold mb-1">Kezdet</div>
+                                    <div class="text-sm text-white font-mono">${startDate}</div>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] text-gray-600 uppercase font-bold mb-1">Vége</div>
+                                    <div class="text-sm text-white font-mono">${endDate}</div>
+                                </div>
+                            </div>
+                            ${monitors.length > 0 ? `
+                            <div class="mb-3">
+                                <div class="text-[10px] text-gray-600 uppercase font-bold mb-2">Érintett szolgáltatások (${monitors.length})</div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${monitors.map(mon => `<span class="px-3 py-1 bg-violet-500/10 text-violet-400 text-xs font-bold rounded-lg">${mon.name}</span>`).join('')}
+                                </div>
+                            </div>
+                            ` : ''}
+                            ${categories.length > 0 ? `
+                            <div>
+                                <div class="text-[10px] text-gray-600 uppercase font-bold mb-2">Érintett kategóriák (${categories.length})</div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${categories.map(cat => `<span class="px-3 py-1 bg-violet-500/20 text-violet-300 text-xs font-bold rounded-lg">${cat.name}</span>`).join('')}
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>`;
+                });
+                html += '</div>';
+
+                container.innerHTML = html;
+            }
+
+            function renderAdminSettings() {
+                const container = document.getElementById('admin-settings-content');
+
+                let catHtml = editConfig.categories.map((c, idx) => `
+                    <div class="bg-gray-900/50 border border-gray-800 p-4 rounded-xl flex items-center gap-3">
+                        <input type="text" class="flex-1 bg-transparent border-none text-white font-bold p-0 outline-none" value="${c.name}" onchange="updateCat(${idx}, 'name', this.value)">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="cat-open-${idx}" ${c.defaultOpen ? 'checked' : ''} onchange="updateCat(${idx}, 'defaultOpen', this.checked)" class="w-4 h-4 accent-brand-500">
+                                <label for="cat-open-${idx}" class="text-[10px] text-gray-500 font-bold uppercase">Nyitva</label>
+                            </div>
+                            <button onclick="removeCat(${idx})" class="text-gray-600 hover:text-red-500 p-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                    </div>`).join('');
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-xl font-bold text-white">Kategóriák</h2>
+                                <button onclick="addCategory()" class="text-brand-400 hover:text-brand-300 text-sm font-bold">+ Új kategória</button>
+                            </div>
+                            <div class="space-y-3">${catHtml}</div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="glass-card p-6 rounded-2xl border border-gray-800">
+                                <h2 class="text-xl font-bold text-white mb-4">HTTP Státusz kódok</h2>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Sikeres válaszkódok</label>
+                                        <input type="text" id="admin-status-codes" value="${editConfig.successCodes.join(', ')}"
+                                            class="w-full bg-gray-900/50 border border-gray-800 text-brand-400 font-mono p-3 rounded-xl outline-none focus:border-brand-500 transition-all"
+                                            placeholder="200, 201, 301">
+                                    </div>
+                                    <p class="text-xs text-gray-600">Ezeket a kódokat a rendszer "UP" állapotnak jelöli meg.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="glass-card p-6 rounded-2xl border border-gray-800">
+                                <h2 class="text-xl font-bold text-white mb-4">Import / Export</h2>
+                                <div class="flex gap-3">
+                                    <button onclick="exportConfig()" class="flex-1 flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl font-bold transition-all">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                        Export
+                                    </button>
+                                    <button onclick="document.getElementById('config-import').click()" class="flex-1 flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl font-bold transition-all">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                        Import
+                                    </button>
+                                    <input type="file" id="config-import" class="hidden" accept=".json" onchange="importConfig(this)">
                                 </div>
                             </div>
                         </div>
+                    </div >
                     `;
-                    }).join('');
-
-                document.getElementById('admin-status-codes').value = editConfig.successCodes.join(', ');
             }
 
             function updateSite(idx, field, val) { editConfig.urls[idx][field] = val; }
@@ -963,50 +1397,162 @@
             function removeCat(idx) { editConfig.categories.splice(idx, 1); renderAdmin(); }
             function addCategory() { editConfig.categories.push({ id: 'cat-' + Date.now(), name: 'Új kategória', defaultOpen: true }); renderAdmin(); }
 
-            function addMaintenance() {
-                if (!editConfig.maintenances) editConfig.maintenances = [];
+            function openMaintenanceModal() {
+                editingMaintenanceIdx = null;
                 const now = new Date();
-                const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+                const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+                document.getElementById('maint-start').value = formatDateTimeLocal(now);
+                document.getElementById('maint-end').value = formatDateTimeLocal(oneHourLater);
+                document.getElementById('maint-note').value = '';
 
-                const monitorId = editConfig.urls.length > 0 ? editConfig.urls[0].id : null;
-                if (!monitorId) {
-                    alert('Először adj hozzá egy monitort!');
-                    return;
-                }
+                const monitorsDiv = document.getElementById('maint-monitors');
+                monitorsDiv.innerHTML = editConfig.urls.map(u => `
+                    <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-800/50 cursor-pointer">
+                        <input type="checkbox" value="${u.id}" class="maint-monitor-check w-4 h-4 accent-violet-500">
+                        <span class="text-sm text-white">${u.name}</span>
+                    </label>
+                `).join('');
 
-                const startStr = prompt('Karbantartás kezdete (YYYY-MM-DD HH:MM):', formatDateForInput(oneHourAgo));
-                if (!startStr) return;
-                const endStr = prompt('Karbantartás vége (YYYY-MM-DD HH:MM):', formatDateForInput(now));
-                if (!endStr) return;
+                const categoriesDiv = document.getElementById('maint-categories');
+                categoriesDiv.innerHTML = editConfig.categories.map(c => `
+                    <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-800/50 cursor-pointer">
+                        <input type="checkbox" value="${c.id}" class="maint-category-check w-4 h-4 accent-violet-500">
+                        <span class="text-sm text-white">${c.name}</span>
+                    </label>
+                `).join('');
 
-                const monitorSelect = prompt('Monitor ID (válassz):\n' + editConfig.urls.map(u => `${u.id}: ${u.name}`).join('\n'), monitorId);
-                if (!monitorSelect) return;
+                document.getElementById('maintenance-modal').classList.remove('hidden');
+                document.getElementById('maintenance-modal').classList.add('flex');
+            }
 
-                const start = new Date(startStr.replace(' ', 'T')).getTime();
-                const end = new Date(endStr.replace(' ', 'T')).getTime();
+            function formatDateTimeLocal(date) {
+                return date.toISOString().slice(0, 16);
+            }
+
+            function saveMaintenance() {
+                const start = new Date(document.getElementById('maint-start').value).getTime();
+                const end = new Date(document.getElementById('maint-end').value).getTime();
+                const note = document.getElementById('maint-note').value;
+                const monitorIds = [...document.querySelectorAll('.maint-monitor-check:checked')].map(c => c.value);
+                const categoryIds = [...document.querySelectorAll('.maint-category-check:checked')].map(c => c.value);
 
                 if (isNaN(start) || isNaN(end)) {
-                    alert('Érvénytelen dátum formátum!');
+                    alert('Érvénytelen dátum!');
+                    return;
+                }
+                if (monitorIds.length === 0 && categoryIds.length === 0) {
+                    alert('Válassz legalább egy szolgáltatást vagy kategóriát!');
                     return;
                 }
 
-                editConfig.maintenances.push({
-                    id: 'maint-' + Date.now(),
-                    monitorId: monitorSelect,
+                if (!editConfig.maintenances) editConfig.maintenances = [];
+
+                const maintData = {
+                    monitorIds: monitorIds,
+                    categoryIds: categoryIds,
                     start: start,
-                    end: end
-                });
+                    end: end,
+                    note: note
+                };
+
+                if (editingMaintenanceIdx !== null) {
+                    maintData.id = editConfig.maintenances[editingMaintenanceIdx].id;
+                    editConfig.maintenances[editingMaintenanceIdx] = maintData;
+                } else {
+                    maintData.id = 'maint-' + Date.now();
+                    editConfig.maintenances.push(maintData);
+                }
+
+                closeModal('maintenance-modal');
+                editingMaintenanceIdx = null;
                 renderAdmin();
             }
 
-            function formatDateForInput(date) {
-                return date.toISOString().slice(0, 16).replace('T', ' ');
+            let editingMaintenanceIdx = null;
+            let deletingMaintenanceIdx = null;
+
+            function openEditMaintenanceModal(idx) {
+                editingMaintenanceIdx = idx;
+                const maint = editConfig.maintenances[idx];
+
+                document.getElementById('maint-start').value = formatDateTimeLocal(new Date(maint.start));
+                document.getElementById('maint-end').value = formatDateTimeLocal(new Date(maint.end));
+                document.getElementById('maint-note').value = maint.note || '';
+
+                const monitorIds = maint.monitorIds || (maint.monitorId ? [maint.monitorId] : []);
+                const categoryIds = maint.categoryIds || [];
+
+                const monitorsDiv = document.getElementById('maint-monitors');
+                monitorsDiv.innerHTML = editConfig.urls.map(u => `
+                    <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-800/50 cursor-pointer">
+                        <input type="checkbox" value="${u.id}" class="maint-monitor-check w-4 h-4 accent-violet-500" ${monitorIds.includes(u.id) ? 'checked' : ''}>
+                        <span class="text-sm text-white">${u.name}</span>
+                    </label>
+                `).join('');
+
+                const categoriesDiv = document.getElementById('maint-categories');
+                categoriesDiv.innerHTML = editConfig.categories.map(c => `
+                    <label class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-800/50 cursor-pointer">
+                        <input type="checkbox" value="${c.id}" class="maint-category-check w-4 h-4 accent-violet-500" ${categoryIds.includes(c.id) ? 'checked' : ''}>
+                        <span class="text-sm text-white">${c.name}</span>
+                    </label>
+                `).join('');
+
+                document.getElementById('maintenance-modal').classList.remove('hidden');
+                document.getElementById('maintenance-modal').classList.add('flex');
+            }
+
+            function confirmDeleteMaintenance(idx) {
+                deletingMaintenanceIdx = idx;
+                const maint = editConfig.maintenances[idx];
+                document.getElementById('confirm-delete-name').textContent = maint.note || 'Karbantartás #' + (idx + 1);
+                document.getElementById('confirm-modal').classList.remove('hidden');
+                document.getElementById('confirm-modal').classList.add('flex');
+            }
+
+            function executeDeleteMaintenance() {
+                if (deletingMaintenanceIdx !== null) {
+                    editConfig.maintenances.splice(deletingMaintenanceIdx, 1);
+                    deletingMaintenanceIdx = null;
+                    closeModal('confirm-modal');
+                    renderAdmin();
+                }
             }
 
             function removeMaintenance(idx) {
                 editConfig.maintenances.splice(idx, 1);
                 renderAdmin();
             }
+
+            let editingMonitorIdx = null;
+
+            function openEditMonitorModal(idx) {
+                editingMonitorIdx = idx;
+                const monitor = editConfig.urls[idx];
+
+                document.getElementById('edit-monitor-name').value = monitor.name;
+                document.getElementById('edit-monitor-url').value = monitor.url;
+
+                const catSelect = document.getElementById('edit-monitor-category');
+                catSelect.innerHTML = `<option value="none">Nincs kategória</option>` +
+                    editConfig.categories.map(c => `<option value="${c.id}" ${monitor.categoryId === c.id ? 'selected' : ''}>${c.name}</option>`).join('');
+
+                document.getElementById('edit-monitor-modal').classList.remove('hidden');
+                document.getElementById('edit-monitor-modal').classList.add('flex');
+            }
+
+            function saveMonitorEdit() {
+                if (editingMonitorIdx === null) return;
+
+                editConfig.urls[editingMonitorIdx].name = document.getElementById('edit-monitor-name').value;
+                editConfig.urls[editingMonitorIdx].url = document.getElementById('edit-monitor-url').value;
+                editConfig.urls[editingMonitorIdx].categoryId = document.getElementById('edit-monitor-category').value;
+
+                closeModal('edit-monitor-modal');
+                editingMonitorIdx = null;
+                renderAdmin();
+            }
+
 
             function exportConfig() {
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(editConfig, null, 2));
@@ -1042,8 +1588,10 @@
             }
 
             async function saveAdminChanges() {
-                const codesStr = document.getElementById('admin-status-codes').value;
-                editConfig.successCodes = codesStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+                const codesInput = document.getElementById('admin-status-codes');
+                if (codesInput) {
+                    editConfig.successCodes = codesInput.value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+                }
 
                 try {
                     const res = await fetch('?admin=true', {
