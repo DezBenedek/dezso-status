@@ -37,7 +37,8 @@
                         status: {
                             up: '#10b981',
                             down: '#ef4444',
-                            warn: '#f59e0b'
+                            warn: '#f59e0b',
+                            maintenance: '#8b5cf6'
                         }
                     },
                     fontFamily: {
@@ -149,6 +150,29 @@
 
         .page-transition {
             animation: slide-up 0.4s ease-out forwards;
+        }
+
+        .admin-nav-btn {
+            color: #9ca3af;
+        }
+
+        .admin-nav-btn:hover {
+            background: rgba(55, 65, 81, 0.5);
+            color: #fff;
+        }
+
+        .admin-nav-btn.active {
+            background: rgba(12, 134, 235, 0.15);
+            color: #36a2f8;
+            border: 1px solid rgba(12, 134, 235, 0.3);
+        }
+
+        .admin-page.active {
+            display: block;
+        }
+
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
         }
     </style>
 </head>
@@ -279,109 +303,175 @@
             </div>
         </div>
 
-        <div id="admin-panel" class="fixed inset-0 bg-dark-bg hidden z-[110] overflow-y-auto">
-            <div class="max-w-6xl mx-auto p-6 md:p-12">
-                <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <span
-                                class="px-2 py-0.5 bg-brand-500/10 text-brand-400 text-[10px] font-black uppercase tracking-widest rounded border border-brand-500/20">System
-                                Config</span>
-                            <h1 class="text-4xl font-black text-white tracking-tight">Vezérlőpult</h1>
+        <div id="admin-panel" class="fixed inset-0 bg-dark-bg hidden z-[110] overflow-hidden">
+            <div class="flex h-full">
+                <aside class="w-64 bg-gray-900/50 border-r border-gray-800 flex flex-col">
+                    <div class="p-6 border-b border-gray-800">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl flex items-center justify-center font-extrabold text-white">
+                                A</div>
+                            <div>
+                                <span
+                                    class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Admin</span>
+                                <h2 class="font-bold text-white text-lg">Vezérlőpult</h2>
+                            </div>
                         </div>
-                        <p class="text-gray-500">Módosítsd a figyelőrendszer beállításait és kategóriáit.</p>
                     </div>
-                    <div class="flex gap-3">
+                    <nav class="flex-1 p-4 space-y-2">
+                        <button onclick="setAdminPage('overview')" data-page="overview"
+                            class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                                </path>
+                            </svg>
+                            <span class="font-semibold">Áttekintés</span>
+                        </button>
+                        <button onclick="setAdminPage('monitors')" data-page="monitors"
+                            class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                            <span class="font-semibold">Monitorok</span>
+                        </button>
+                        <button onclick="setAdminPage('maintenance')" data-page="maintenance"
+                            class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
+                                </path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <span class="font-semibold">Karbantartás</span>
+                        </button>
+                        <button onclick="setAdminPage('settings')" data-page="settings"
+                            class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
+                                </path>
+                            </svg>
+                            <span class="font-semibold">Beállítások</span>
+                        </button>
+                    </nav>
+                    <div class="p-4 border-t border-gray-800 space-y-2">
                         <button onclick="saveAdminChanges()"
-                            class="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-brand-600/20">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                                <polyline points="17 21 17 13 7 13 7 21" />
-                                <path d="M7 3v5h8" />
+                            class="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-4 py-3 rounded-xl font-bold transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
                             </svg>
                             Mentés
                         </button>
-                        <div class="flex gap-2 border-l border-gray-800 pl-3">
-                            <button onclick="exportConfig()" title="Konfiguráció exportálása"
-                                class="p-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl transition-all">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="7 10 12 15 17 10"></polyline>
-                                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                                </svg>
-                            </button>
-                            <button onclick="document.getElementById('config-import').click()"
-                                title="Konfiguráció importálása"
-                                class="p-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl transition-all">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17 8 12 3 7 8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                </svg>
-                            </button>
-                            <input type="file" id="config-import" class="hidden" accept=".json"
-                                onchange="importConfig(this)">
-                        </div>
                         <button onclick="closeAdmin()"
-                            class="bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-bold transition-all ml-2">Bezárás</button>
+                            class="w-full py-2 text-gray-500 hover:text-white transition-colors text-sm font-medium">Bezárás</button>
                     </div>
-                </header>
+                </aside>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div class="lg:col-span-8 space-y-6">
-                        <div class="flex items-center justify-between px-2">
-                            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                                <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                                Aktív Monitorok
-                            </h2>
+                <main class="flex-1 overflow-y-auto">
+                    <div id="admin-page-overview" class="admin-page hidden p-8">
+                        <header class="mb-8">
+                            <h1 class="text-3xl font-black text-white mb-2">Áttekintés</h1>
+                            <p class="text-gray-500">Rendszer állapot és statisztikák</p>
+                        </header>
+                        <div id="admin-overview-content"></div>
+                    </div>
+
+                    <div id="admin-page-monitors" class="admin-page hidden p-8">
+                        <header class="flex items-center justify-between mb-8">
+                            <div>
+                                <h1 class="text-3xl font-black text-white mb-2">Monitorok</h1>
+                                <p class="text-gray-500">Szolgáltatások és kategóriák kezelése</p>
+                            </div>
                             <button onclick="addSite()"
-                                class="text-brand-400 hover:text-brand-300 text-sm font-bold flex items-center gap-1 transition-colors">
+                                class="flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 4v16m8-8H4"></path>
                                 </svg>
-                                Új monitor hozzáadása
+                                Új monitor
                             </button>
-                        </div>
-                        <div id="admin-sites" class="grid grid-cols-1 gap-4"></div>
+                        </header>
+                        <div id="admin-monitors-content"></div>
                     </div>
 
-                    <div class="lg:col-span-4 space-y-10">
-                        <div class="space-y-6">
-                            <div class="flex items-center justify-between px-2">
-                                <h2 class="text-xl font-bold text-white">Kategóriák</h2>
-                                <button onclick="addCategory()"
-                                    class="text-brand-400 hover:text-brand-300 text-sm font-bold">+ Új</button>
+                    <div id="admin-page-maintenance" class="admin-page hidden p-8">
+                        <header class="flex items-center justify-between mb-8">
+                            <div>
+                                <h1 class="text-3xl font-black text-white mb-2 flex items-center gap-3">
+                                    <div class="w-4 h-4 rounded-full bg-status-maintenance"></div>
+                                    Karbantartás
+                                </h1>
+                                <p class="text-gray-500">Tervezett karbantartási időszakok kezelése</p>
                             </div>
-                            <div id="admin-categories" class="space-y-3"></div>
-                        </div>
+                            <button onclick="openMaintenanceModal()"
+                                class="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Új karbantartás
+                            </button>
+                        </header>
+                        <div id="admin-maintenance-content"></div>
+                    </div>
 
-                        <div class="glass-card p-6 rounded-2xl border border-gray-800">
-                            <h2 class="text-xl font-bold text-white mb-4">Globális Szabályok</h2>
-                            <div class="space-y-4">
-                                <div>
-                                    <label
-                                        class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Sikeres
-                                        HTTP kódok</label>
-                                    <input type="text" id="admin-status-codes"
-                                        class="w-full bg-gray-900/50 border border-gray-800 text-brand-400 font-mono p-3 rounded-xl outline-none focus:border-brand-500 transition-all"
-                                        placeholder="200, 201, 301">
-                                </div>
-                                <p class="text-xs text-gray-600">Ezeket a kódokat a rendszer "UP" állapotnak jelöli meg.
-                                </p>
-                            </div>
+                    <div id="admin-page-settings" class="admin-page hidden p-8">
+                        <header class="mb-8">
+                            <h1 class="text-3xl font-black text-white mb-2">Beállítások</h1>
+                            <p class="text-gray-500">Kategóriák és globális szabályok</p>
+                        </header>
+                        <div id="admin-settings-content"></div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <div id="maintenance-modal"
+            class="fixed inset-0 bg-black/60 backdrop-blur-md hidden items-center justify-center z-[120] p-4">
+            <div class="bg-dark-card border border-gray-800 rounded-2xl p-8 w-full max-w-lg shadow-2xl">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <div class="w-4 h-4 rounded-full bg-status-maintenance"></div>
+                    Új karbantartás
+                </h2>
+                <div class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Kezdés</label>
+                            <input type="datetime-local" id="maint-start"
+                                class="w-full bg-gray-900/50 border border-gray-800 text-white p-3 rounded-xl outline-none focus:border-brand-500">
                         </div>
+                        <div>
+                            <label
+                                class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Befejezés</label>
+                            <input type="datetime-local" id="maint-end"
+                                class="w-full bg-gray-900/50 border border-gray-800 text-white p-3 rounded-xl outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Érintett
+                            szolgáltatások</label>
+                        <div id="maint-monitors"
+                            class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-2 bg-gray-900/30 rounded-xl border border-gray-800">
+                        </div>
+                    </div>
+                    <div>
+                        <label
+                            class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Megjegyzés
+                            (opcionális)</label>
+                        <input type="text" id="maint-note"
+                            class="w-full bg-gray-900/50 border border-gray-800 text-white p-3 rounded-xl outline-none focus:border-brand-500"
+                            placeholder="Pl.: Szerver frissítés">
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="saveMaintenance()"
+                            class="flex-1 bg-violet-600 hover:bg-violet-500 text-white py-3 rounded-xl font-bold transition-all">Mentés</button>
+                        <button onclick="closeModal('maintenance-modal')"
+                            class="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl font-bold transition-all">Mégse</button>
                     </div>
                 </div>
             </div>
@@ -399,11 +489,13 @@
                         { id: 'cat-1', name: 'Frontend', defaultOpen: true },
                         { id: 'cat-2', name: 'Infrastructure', defaultOpen: true }
                     ],
-                    successCodes: [200, 201, 304]
+                    successCodes: [200, 201, 304],
+                    maintenances: []
                 }
             };
 
             let activeId = null;
+            let lastRenderedId = null;
             let adminPassword = null;
             let collapsedCategories = new Set();
             let editConfig = null;
@@ -537,11 +629,20 @@
                 });
             }
 
+            function isInMaintenance(monitorId, timestamp) {
+                const maintenances = rawData.config.maintenances || [];
+                return maintenances.some(m =>
+                    m.monitorId === monitorId &&
+                    timestamp >= m.start &&
+                    timestamp <= m.end
+                );
+            }
+
             function calculateUptime(monitor, days = 30) {
                 const logs = monitor.detailedLogs || [];
                 if (logs.length === 0) return "100.0";
                 const limit = Date.now() - (days * 24 * 60 * 60 * 1000);
-                const filteredLogs = logs.filter(l => l.time >= limit);
+                const filteredLogs = logs.filter(l => l.time >= limit && !isInMaintenance(monitor.id, l.time));
                 if (filteredLogs.length === 0) return "100.0";
                 const upCount = filteredLogs.filter(l => l.ok === true || l.ok === "true").length;
                 return ((upCount / filteredLogs.length) * 100).toFixed(2);
@@ -551,7 +652,7 @@
                 const logs = monitor.detailedLogs || [];
                 if (logs.length === 0) return 0;
                 const limit = Date.now() - (days * 24 * 60 * 60 * 1000);
-                const filteredLogs = logs.filter(l => l.time >= limit && l.ok);
+                const filteredLogs = logs.filter(l => l.time >= limit && l.ok && !isInMaintenance(monitor.id, l.time));
                 if (filteredLogs.length === 0) return 0;
                 const total = filteredLogs.reduce((acc, l) => acc + (l.responseTime || 0), 0);
                 return Math.round(total / filteredLogs.length);
@@ -580,14 +681,24 @@
                 const emptyBarsCount = totalBars - recentLogs.length;
 
                 for (let i = 0; i < emptyBarsCount; i++) {
-                    recentBarsHtml += `<div class="bar-segment flex-1 h-full rounded-[1px] bg-gray-800/40"></div>`;
+                    recentBarsHtml += `<div class="bar-segment flex-1 h-full rounded-md bg-gray-800/40"></div>`;
                 }
 
                 for (let i = 0; i < recentLogs.length; i++) {
                     const log = recentLogs[i];
                     const timeStr = new Date(log.time).toLocaleTimeString('hu-HU');
-                    const colorClass = log.ok ? 'bg-status-up' : 'bg-status-down';
-                    recentBarsHtml += `<div class="bar-segment flex-1 h-full rounded-[1px] ${colorClass}" title="${timeStr} | ${log.responseTime}ms | Status: ${log.status}"></div>`;
+                    const inMaint = isInMaintenance(m.id, log.time);
+                    const colorClass = inMaint ? 'bg-status-maintenance' : (log.ok ? 'bg-status-up' : 'bg-status-down');
+                    const statusText = inMaint ? 'Karbantartás' : `Status: ${log.status}`;
+                    recentBarsHtml += `<div class="bar-segment flex-1 h-full rounded-md ${colorClass}" title="${timeStr} | ${log.responseTime}ms | ${statusText}"></div>`;
+                }
+
+                function getDayColor(uptime) {
+                    if (uptime >= 99.99) return 'bg-status-up';
+                    if (uptime >= 95) return 'bg-emerald-400';
+                    if (uptime >= 90) return 'bg-amber-500';
+                    if (uptime >= 85) return 'bg-red-500';
+                    return 'bg-red-800';
                 }
 
                 let dailyHtml = '';
@@ -603,16 +714,27 @@
                     let title = `${d.toLocaleDateString('hu-HU')}: Nincs adat`;
 
                     if (dayLogs.length > 0) {
-                        const fails = dayLogs.filter(l => !l.ok).length;
-                        const dayUp = ((dayLogs.length - fails) / dayLogs.length) * 100;
-                        color = dayUp === 100 ? 'bg-status-up' : (dayUp > 98 ? 'bg-status-warn' : 'bg-status-down');
-                        title = `${d.toLocaleDateString('hu-HU')} | Uptime: ${dayUp.toFixed(1)}% (${fails} hiba)`;
+                        const maintLogs = dayLogs.filter(l => isInMaintenance(m.id, l.time));
+                        const nonMaintLogs = dayLogs.filter(l => !isInMaintenance(m.id, l.time));
+
+                        if (maintLogs.length === dayLogs.length) {
+                            color = 'bg-status-maintenance';
+                            title = `${d.toLocaleDateString('hu-HU')} | Karbantartás`;
+                        } else if (nonMaintLogs.length > 0) {
+                            const fails = nonMaintLogs.filter(l => !l.ok).length;
+                            const dayUp = ((nonMaintLogs.length - fails) / nonMaintLogs.length) * 100;
+                            color = getDayColor(dayUp);
+                            title = `${d.toLocaleDateString('hu-HU')} | Uptime: ${dayUp.toFixed(2)}% (${fails} hiba${maintLogs.length > 0 ? ', +karbantartás' : ''})`;
+                        }
                     }
-                    dailyHtml += `<div class="bar-segment flex-1 h-full rounded-[2px] ${color}" title="${title}"></div>`;
+                    dailyHtml += `<div class="bar-segment flex-1 h-full rounded-lg ${color}" title="${title}"></div>`;
                 }
 
+                const shouldAnimate = lastRenderedId !== activeId;
+                lastRenderedId = activeId;
+
                 view.innerHTML = `
-                <div class="page-transition">
+                <div class="${shouldAnimate ? 'page-transition' : ''}">
                     <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
                         <div class="space-y-3">
                             <div class="flex items-center gap-3">
@@ -662,9 +784,16 @@
                         </div>
 
                         <div class="glass-card p-8 rounded-[32px] border border-gray-800/50">
-                            <div class="flex justify-between items-center mb-6">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                                 <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest">Napi bontás (30 nap)</h3>
-                                <span class="text-[10px] text-gray-600 font-mono">ADATOK: 5 PERCES INTERVALLUMOK</span>
+                                <div class="flex flex-wrap items-center gap-2 text-[10px] font-bold">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-status-up" title="99.99%+"></div>
+                                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-400" title="95%+"></div>
+                                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500" title="90%+"></div>
+                                    <div class="w-2.5 h-2.5 rounded-full bg-red-500" title="85%+"></div>
+                                    <div class="w-2.5 h-2.5 rounded-full bg-red-800" title="<85%"></div>
+                                    <div class="w-2.5 h-2.5 rounded-full bg-status-maintenance" title="Karbantartás"></div>
+                                </div>
                             </div>
                             <div class="flex gap-[3px] h-8">${dailyHtml}</div>
                         </div>
@@ -688,11 +817,11 @@
                                         </div>
                                     </div>
                                 `).join('') : `
-                                    <div class="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-800/40 rounded-[40px]">
-                                        <div class="w-16 h-16 bg-status-up/5 rounded-full flex items-center justify-center text-status-up mb-4">
-                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    <div class="flex flex-col items-center justify-center py-10 md:py-20 px-4 border-2 border-dashed border-gray-800/40 rounded-2xl md:rounded-[40px]">
+                                        <div class="w-12 h-12 md:w-16 md:h-16 bg-status-up/5 rounded-full flex items-center justify-center text-status-up mb-3 md:mb-4">
+                                            <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                         </div>
-                                        <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">Nincs bejegyzett incidens az elmúlt 30 napban.</p>
+                                        <p class="text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest text-center">Nincs incidens (30 nap)</p>
                                     </div>
                                 `
                     }
@@ -786,6 +915,36 @@
                 </div>
             `).join('');
 
+                const maintList = document.getElementById('admin-maintenances');
+                const maintenances = editConfig.maintenances || [];
+                maintList.innerHTML = maintenances.length === 0 ?
+                    '<p class="text-gray-600 text-sm px-2">Nincs karbantartás</p>' :
+                    maintenances.map((m, idx) => {
+                        const monitor = editConfig.urls.find(u => u.id === m.monitorId);
+                        const startDate = new Date(m.start).toLocaleString('hu-HU');
+                        const endDate = new Date(m.end).toLocaleString('hu-HU');
+                        return `
+                        <div class="bg-violet-500/10 border border-violet-500/30 p-4 rounded-xl">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-bold text-white">${monitor?.name || 'Ismeretlen monitor'}</span>
+                                <button onclick="removeMaintenance(${idx})" class="text-gray-600 hover:text-red-500 p-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+                            <div class="text-[11px] text-gray-400 space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-gray-600">Kezdet:</span>
+                                    <span class="font-mono">${startDate}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-gray-600">Vége:</span>
+                                    <span class="font-mono">${endDate}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    }).join('');
+
                 document.getElementById('admin-status-codes').value = editConfig.successCodes.join(', ');
             }
 
@@ -803,6 +962,51 @@
             function updateCat(idx, field, val) { editConfig.categories[idx][field] = val; }
             function removeCat(idx) { editConfig.categories.splice(idx, 1); renderAdmin(); }
             function addCategory() { editConfig.categories.push({ id: 'cat-' + Date.now(), name: 'Új kategória', defaultOpen: true }); renderAdmin(); }
+
+            function addMaintenance() {
+                if (!editConfig.maintenances) editConfig.maintenances = [];
+                const now = new Date();
+                const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+
+                const monitorId = editConfig.urls.length > 0 ? editConfig.urls[0].id : null;
+                if (!monitorId) {
+                    alert('Először adj hozzá egy monitort!');
+                    return;
+                }
+
+                const startStr = prompt('Karbantartás kezdete (YYYY-MM-DD HH:MM):', formatDateForInput(oneHourAgo));
+                if (!startStr) return;
+                const endStr = prompt('Karbantartás vége (YYYY-MM-DD HH:MM):', formatDateForInput(now));
+                if (!endStr) return;
+
+                const monitorSelect = prompt('Monitor ID (válassz):\n' + editConfig.urls.map(u => `${u.id}: ${u.name}`).join('\n'), monitorId);
+                if (!monitorSelect) return;
+
+                const start = new Date(startStr.replace(' ', 'T')).getTime();
+                const end = new Date(endStr.replace(' ', 'T')).getTime();
+
+                if (isNaN(start) || isNaN(end)) {
+                    alert('Érvénytelen dátum formátum!');
+                    return;
+                }
+
+                editConfig.maintenances.push({
+                    id: 'maint-' + Date.now(),
+                    monitorId: monitorSelect,
+                    start: start,
+                    end: end
+                });
+                renderAdmin();
+            }
+
+            function formatDateForInput(date) {
+                return date.toISOString().slice(0, 16).replace('T', ' ');
+            }
+
+            function removeMaintenance(idx) {
+                editConfig.maintenances.splice(idx, 1);
+                renderAdmin();
+            }
 
             function exportConfig() {
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(editConfig, null, 2));

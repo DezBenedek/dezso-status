@@ -17,11 +17,18 @@ const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
 
 export default {
     async scheduled(event, env, ctx) {
-        let data = await env.STATUS_KV.get("uptime_data", { type: "json" }) || {};
-        let config = await env.STATUS_KV.get("config", { type: "json" }) || DEFAULT_CONFIG;
-        const now = Date.now();
+        const [dataRaw, configRaw] = await Promise.all([
+            env.STATUS_KV.get("uptime_data"),
+            env.STATUS_KV.get("config")
+        ]);
 
-        for (const target of config.urls) {
+        let data = dataRaw ? JSON.parse(dataRaw) : {};
+        const config = configRaw ? JSON.parse(configRaw) : DEFAULT_CONFIG;
+        const now = Date.now();
+        const limit = now - THIRTY_DAYS;
+        const successSet = new Set(config.successCodes);
+
+        const fetchPromises = config.urls.map(async (target) => {
             if (!data[target.id]) {
                 data[target.id] = {
                     name: target.name, url: target.url,
@@ -39,21 +46,22 @@ export default {
             let result = { status: 0, ok: false, responseTime: 0, time: now };
 
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
+
                 const response = await fetch(target.url, {
-                    method: 'GET',
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) DEZSO-STUDIOS-Status/1.2 (compatible; DezsoStudiosBot/1.0)',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
-                    },
-                    cf: { timeout: 10000 },
+                    method: 'HEAD',
+                    headers: { 'User-Agent': 'DEZSO-Status/1.2' },
+                    signal: controller.signal,
                     redirect: 'follow'
                 });
 
+                clearTimeout(timeoutId);
                 result.status = response.status;
-                result.ok = config.successCodes.includes(response.status);
+                result.ok = successSet.has(response.status);
                 result.responseTime = Date.now() - startTime;
             } catch (e) {
-                result.status = "Timeout/Error";
+                result.status = 0;
                 result.ok = false;
                 result.responseTime = 0;
             }
@@ -69,14 +77,19 @@ export default {
             monitor.lastStatus = result;
             monitor.detailedLogs.push(result);
 
-            const limit = now - THIRTY_DAYS;
-            monitor.detailedLogs = monitor.detailedLogs.filter(l => l.time > limit);
-            if (monitor.incidents.length > 50) monitor.incidents.shift();
-        }
+            if (monitor.detailedLogs.length > 8640) {
+                monitor.detailedLogs = monitor.detailedLogs.filter(l => l.time > limit);
+            }
+            if (monitor.incidents.length > 50) {
+                monitor.incidents = monitor.incidents.slice(-50);
+            }
+        });
 
-        const activeIds = config.urls.map(u => u.id);
-        for (const key in data) {
-            if (!activeIds.includes(key)) delete data[key];
+        await Promise.all(fetchPromises);
+
+        const activeIds = new Set(config.urls.map(u => u.id));
+        for (const key of Object.keys(data)) {
+            if (!activeIds.has(key)) delete data[key];
         }
 
         await env.STATUS_KV.put("uptime_data", JSON.stringify(data));
