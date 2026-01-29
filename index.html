@@ -9,6 +9,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -362,6 +363,15 @@
                             </svg>
                             <span class="font-semibold">Áttekintés</span>
                         </button>
+                        <button onclick="setAdminPage('statistics')" data-page="statistics"
+                            class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z">
+                                </path>
+                            </svg>
+                            <span class="font-semibold">Statisztikák</span>
+                        </button>
                         <button onclick="setAdminPage('monitors')" data-page="monitors"
                             class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,6 +422,55 @@
                             <p class="text-gray-500">Rendszer állapot és statisztikák</p>
                         </header>
                         <div id="admin-overview-content"></div>
+                    </div>
+
+                    <div id="admin-page-statistics" class="admin-page hidden p-8">
+                        <header class="mb-8">
+                            <h1 class="text-3xl font-black text-white mb-2">Statisztikák</h1>
+                            <p class="text-gray-500">Részletes grafikonok és elemzések</p>
+                        </header>
+                        <div class="glass-card p-6 rounded-2xl border border-gray-800 mb-8">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Időtartam</label>
+                                    <select id="stats-range" onchange="renderAdminStatistics()"
+                                        class="w-full bg-gray-900 border border-gray-800 text-white p-3 rounded-xl outline-none focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%3E%3C/path%3E%3C/svg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat">
+                                        <option value="1">Utolsó 24 óra</option>
+                                        <option value="7">Utolsó 7 nap</option>
+                                        <option value="31" selected>Utolsó 31 nap</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Kategória</label>
+                                    <select id="stats-category" onchange="updateStatsMonitors()"
+                                        class="w-full bg-gray-900 border border-gray-800 text-white p-3 rounded-xl outline-none focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%3E%3C/path%3E%3C/svg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat">
+                                        <option value="all">Összes kategória</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Monitor</label>
+                                    <select id="stats-monitor" onchange="renderAdminStatistics()"
+                                        class="w-full bg-gray-900 border border-gray-800 text-white p-3 rounded-xl outline-none focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%3E%3C/path%3E%3C/svg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat">
+                                        <option value="all">Összes monitor</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="admin-statistics-content" class="space-y-8">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <div class="glass-card p-6 rounded-3xl border border-gray-800">
+                                    <h3 class="text-lg font-bold text-white mb-6">Uptime Alakulása (%)</h3>
+                                    <div class="h-64"><canvas id="uptimeChart"></canvas></div>
+                                </div>
+                                <div class="glass-card p-6 rounded-3xl border border-gray-800">
+                                    <h3 class="text-lg font-bold text-white mb-6">Átlagos Válaszidő (ms)</h3>
+                                    <div class="h-64"><canvas id="responseTimeChart"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="admin-page-monitors" class="admin-page hidden p-8">

@@ -66,14 +66,32 @@ export default {
                 result.responseTime = 0;
             }
 
+            const isInMaintenance = (config.maintenances || []).some(m => {
+                if (now < m.start || now > m.end) return false;
+                if (m.monitorIds && m.monitorIds.includes(target.id)) return true;
+                const catId = target.categoryId || 'none';
+                if (m.categoryIds && m.categoryIds.includes(catId)) return true;
+                return false;
+            });
+
             const wasOk = monitor.lastStatus?.ok ?? true;
-            if (wasOk && !result.ok) {
-                monitor.incidents.push({ start: now, end: null, code: result.status });
-            } else if (!wasOk && result.ok) {
-                const lastInc = monitor.incidents[monitor.incidents.length - 1];
-                if (lastInc && !lastInc.end) lastInc.end = now;
+            if (isInMaintenance) {
+                // Karbantartás alatt nem indítunk új incidenst, 
+                // de ha már volt kint levő, és megjavult, lezárjuk.
+                if (!wasOk && result.ok) {
+                    const lastInc = monitor.incidents[monitor.incidents.length - 1];
+                    if (lastInc && !lastInc.end) lastInc.end = now;
+                }
+            } else {
+                if (wasOk && !result.ok) {
+                    monitor.incidents.push({ start: now, end: null, code: result.status });
+                } else if (!wasOk && result.ok) {
+                    const lastInc = monitor.incidents[monitor.incidents.length - 1];
+                    if (lastInc && !lastInc.end) lastInc.end = now;
+                }
             }
 
+            monitor.isInMaintenance = isInMaintenance;
             monitor.lastStatus = result;
             monitor.detailedLogs.push(result);
 
